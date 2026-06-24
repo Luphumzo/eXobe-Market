@@ -1,15 +1,45 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
+@custom-variant data-open (&:where([data-state="open"], [data-open]:not([data-open="false"])));
+@custom-variant data-closed (&:where([data-state="closed"], [data-closed]:not([data-closed="false"])));
+@custom-variant data-checked (&:where([data-state="checked"], [data-checked]:not([data-checked="false"])));
+@custom-variant data-unchecked (&:where([data-state="unchecked"], [data-unchecked]:not([data-unchecked="false"])));
+@custom-variant data-selected (&:where([data-selected="true"]));
+@custom-variant data-disabled (&:where([data-disabled="true"], [data-disabled]:not([data-disabled="false"])));
+@custom-variant data-active (&:where([data-state="active"], [data-active]:not([data-active="false"])));
+@custom-variant data-horizontal (&:where([data-orientation="horizontal"]));
+@custom-variant data-vertical (&:where([data-orientation="vertical"]));
 
 @theme inline {
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height, var(--accordion-panel-height, auto));
+    }
+  }
+
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height, var(--accordion-panel-height, auto));
+    }
+    to {
+      height: 0;
+    }
+  }
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
+  --color-crimson: var(--crimson);
+  --color-jet: var(--jet);
+  --color-steel: var(--steel);
+  --color-white: var(--white);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -49,72 +79,76 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
+  --crimson: #dc143c;
+  --jet: #0a0a0a;
+  --steel: #667085;
+  --white: #ffffff;
+  --background: var(--white);
+  --foreground: var(--jet);
+  --card: var(--white);
+  --card-foreground: var(--jet);
+  --popover: var(--white);
+  --popover-foreground: var(--jet);
+  --primary: var(--crimson);
+  --primary-foreground: var(--white);
+  --secondary: color-mix(in srgb, var(--steel) 12%, var(--white));
+  --secondary-foreground: var(--jet);
+  --muted: color-mix(in srgb, var(--steel) 10%, var(--white));
+  --muted-foreground: var(--steel);
+  --accent: var(--jet);
+  --accent-foreground: var(--white);
+  --destructive: var(--crimson);
+  --border: color-mix(in srgb, var(--steel) 28%, var(--white));
+  --input: color-mix(in srgb, var(--steel) 28%, var(--white));
+  --ring: var(--crimson);
+  --chart-1: var(--crimson);
+  --chart-2: var(--jet);
+  --chart-3: var(--steel);
+  --chart-4: color-mix(in srgb, var(--crimson) 70%, var(--white));
+  --chart-5: color-mix(in srgb, var(--jet) 70%, var(--white));
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: var(--white);
+  --sidebar-foreground: var(--jet);
+  --sidebar-primary: var(--crimson);
+  --sidebar-primary-foreground: var(--white);
+  --sidebar-accent: color-mix(in srgb, var(--steel) 12%, var(--white));
+  --sidebar-accent-foreground: var(--jet);
+  --sidebar-border: color-mix(in srgb, var(--steel) 28%, var(--white));
+  --sidebar-ring: var(--crimson);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: var(--jet);
+  --foreground: var(--white);
+  --card: var(--jet);
+  --card-foreground: var(--white);
+  --popover: var(--jet);
+  --popover-foreground: var(--white);
+  --primary: var(--crimson);
+  --primary-foreground: var(--white);
+  --secondary: color-mix(in srgb, var(--steel) 42%, var(--jet));
+  --secondary-foreground: var(--white);
+  --muted: color-mix(in srgb, var(--steel) 36%, var(--jet));
+  --muted-foreground: color-mix(in srgb, var(--steel) 70%, var(--white));
+  --accent: var(--white);
+  --accent-foreground: var(--jet);
+  --destructive: var(--crimson);
+  --border: color-mix(in srgb, var(--steel) 48%, var(--jet));
+  --input: color-mix(in srgb, var(--steel) 48%, var(--jet));
+  --ring: var(--crimson);
+  --chart-1: var(--crimson);
+  --chart-2: var(--white);
+  --chart-3: var(--steel);
+  --chart-4: color-mix(in srgb, var(--crimson) 70%, var(--white));
+  --chart-5: color-mix(in srgb, var(--steel) 70%, var(--white));
+  --sidebar: var(--jet);
+  --sidebar-foreground: var(--white);
+  --sidebar-primary: var(--crimson);
+  --sidebar-primary-foreground: var(--white);
+  --sidebar-accent: color-mix(in srgb, var(--steel) 36%, var(--jet));
+  --sidebar-accent-foreground: var(--white);
+  --sidebar-border: color-mix(in srgb, var(--steel) 48%, var(--jet));
+  --sidebar-ring: var(--crimson);
 }
 
 @layer base {
