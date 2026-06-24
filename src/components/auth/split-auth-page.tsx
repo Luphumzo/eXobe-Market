@@ -1,4 +1,5 @@
 import Link from "next/link"
+import type { ReactNode } from "react"
 import { Eye } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -18,6 +19,7 @@ type SplitAuthPageProps = {
   footerHref: string
   footerLinkLabel: string
   forgotPassword?: boolean
+  children?: ReactNode
 }
 
 const SplitAuthPage = ({
@@ -28,6 +30,7 @@ const SplitAuthPage = ({
   footerHref,
   footerLinkLabel,
   forgotPassword = false,
+  children,
 }: SplitAuthPageProps) => {
   return (
     <main className="grid min-h-screen bg-background text-foreground lg:grid-cols-2">
@@ -39,45 +42,47 @@ const SplitAuthPage = ({
 
           <h1 className="mb-10 text-center text-3xl font-black">{title}</h1>
 
-          <form className="space-y-4">
-            {fields.map((field) => (
-              <label key={field.label} className="block">
-                <span className="sr-only">{field.label}</span>
-                <span className="relative block">
-                  <input
-                    type={field.type}
-                    placeholder={field.placeholder}
-                    className="h-14 w-full rounded-lg border border-jet bg-background px-4 text-base outline-none transition-colors placeholder:text-steel/55 focus:border-primary focus:ring-3 focus:ring-primary/20"
-                  />
-                  {field.hasReveal ? (
-                    <button
-                      type="button"
-                      aria-label="Show password"
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-steel"
-                    >
-                      <Eye className="size-5" />
-                    </button>
-                  ) : null}
-                </span>
-              </label>
-            ))}
+          {children ?? (
+            <form className="space-y-4">
+              {fields.map((field) => (
+                <label key={field.label} className="block">
+                  <span className="sr-only">{field.label}</span>
+                  <span className="relative block">
+                    <input
+                      type={field.type}
+                      placeholder={field.placeholder}
+                      className="h-14 w-full rounded-lg border border-jet bg-background px-4 text-base outline-none transition-colors placeholder:text-steel/55 focus:border-primary focus:ring-3 focus:ring-primary/20"
+                    />
+                    {field.hasReveal ? (
+                      <button
+                        type="button"
+                        aria-label="Show password"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-steel"
+                      >
+                        <Eye className="size-5" />
+                      </button>
+                    ) : null}
+                  </span>
+                </label>
+              ))}
 
-            {forgotPassword ? (
-              <Link
-                href="/forgot-password"
-                className="mx-auto block w-fit pt-4 text-sm text-steel hover:text-foreground"
+              {forgotPassword ? (
+                <Link
+                  href="/forgot-password"
+                  className="mx-auto block w-fit pt-4 text-sm text-steel hover:text-foreground"
+                >
+                  Forgot password?
+                </Link>
+              ) : null}
+
+              <Button
+                type="submit"
+                className="mx-auto mt-7 flex h-11 min-w-32 rounded-full bg-jet px-7 text-base text-white hover:bg-primary"
               >
-                Forgot password?
-              </Link>
-            ) : null}
-
-            <Button
-              type="submit"
-              className="mx-auto mt-7 flex h-11 min-w-32 rounded-full bg-jet px-7 text-base text-white hover:bg-primary"
-            >
-              {buttonLabel}
-            </Button>
-          </form>
+                {buttonLabel}
+              </Button>
+            </form>
+          )}
 
           <p className="mt-8 text-center text-sm text-steel">
             {footerText}{" "}

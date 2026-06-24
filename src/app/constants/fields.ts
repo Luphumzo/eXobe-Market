@@ -5,7 +5,21 @@ interface Field {
   hasReveal?: boolean;
 }
 
-const registerFormFields: Field[] = [
+const loginFormFields: Field[] = [
+  {
+    label: "Email address",
+    type: "email",
+    placeholder: "Email address",
+  },
+  {
+    label: "Password",
+    type: "password",
+    placeholder: "Password",
+    hasReveal: true,
+  },
+];
+
+const accountFields: Field[] = [
   {
     label: "Full name",
     type: "text",
@@ -23,25 +37,39 @@ const registerFormFields: Field[] = [
     hasReveal: true,
   },
   {
-    label: "Confirm Password",
+    label: "Confirm password",
     type: "password",
-    placeholder: "Confirm Password",
+    placeholder: "Confirm password",
     hasReveal: true,
   },
 ];
 
-const loginFormFields: Field[] = [
+const sellerFields: Field[] = [
   {
-    label: "Email address",
-    type: "email",
-    placeholder: "Email address",
+    label: "Business name",
+    type: "text",
+    placeholder: "Business name",
   },
   {
-    label: "Password",
-    type: "password",
-    placeholder: "Password",
-    hasReveal: true,
+    label: "Business description",
+    type: "text",
+    placeholder: "Short business description",
+  },
+  {
+    label: "Province or city",
+    type: "text",
+    placeholder: "Province or city",
+  },
+  {
+    label: "Industry",
+    type: "text",
+    placeholder: "Industry or category",
+  },
+  {
+    label: "Phone number",
+    type: "tel",
+    placeholder: "Phone number",
   },
 ];
 
-export { registerFormFields, loginFormFields };
+export { loginFormFields, sellerFields, accountFields };
