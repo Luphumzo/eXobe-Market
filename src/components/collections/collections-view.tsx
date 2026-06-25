@@ -14,14 +14,14 @@ import {
 } from "@/features/products/products"
 import { cn } from "@/lib/utils"
 
-const filterSections = [
-  "Vendor",
-  "Location",
-  "Product type",
-  "Availability",
-] as const
-
 type SortOption = "newest" | "price-low" | "price-high" | "name"
+
+const sortLabels: Record<SortOption, string> = {
+  newest: "Newest",
+  "price-low": "Price low",
+  "price-high": "Price high",
+  name: "Name",
+}
 
 type CollectionsViewProps = {
   collectionSlug?: string
@@ -42,6 +42,7 @@ const CollectionsView = ({ collectionSlug }: CollectionsViewProps) => {
   const [showFilters, setShowFilters] = useState(true)
   const [minimumPrice, setMinimumPrice] = useState("")
   const [maximumPrice, setMaximumPrice] = useState("")
+  const [isSortOpen, setIsSortOpen] = useState(false)
   const [sortOption, setSortOption] = useState<SortOption>("newest")
   const { data: products = [], isLoading } = useQuery({
     queryKey: marketplaceProductsQueryKey(collectionSlug ?? "all"),
@@ -87,6 +88,10 @@ const CollectionsView = ({ collectionSlug }: CollectionsViewProps) => {
     setMaximumPrice("")
     setSortOption("newest")
   }
+  const selectSortOption = (nextSortOption: SortOption) => {
+    setSortOption(nextSortOption)
+    setIsSortOpen(false)
+  }
 
   return (
     <main className="min-h-screen bg-background px-4 py-8 text-foreground sm:px-6 lg:px-8">
@@ -106,22 +111,41 @@ const CollectionsView = ({ collectionSlug }: CollectionsViewProps) => {
               {showFilters ? "Hide Filters" : "Show Filters"}
               <SlidersHorizontal className="size-5" />
             </Button>
-            <label className="flex h-10 items-center gap-2 text-base font-bold text-steel">
-              Sort by
-              <select
-                value={sortOption}
-                onChange={(event) =>
-                  setSortOption(event.target.value as SortOption)
-                }
-                className="bg-transparent text-base font-bold outline-none"
+            <div
+              className="relative"
+              onMouseLeave={() => setIsSortOpen(false)}
+            >
+              <Button
+                type="button"
+                variant="ghost"
+                aria-expanded={isSortOpen}
+                onClick={() => setIsSortOpen((current) => !current)}
+                className="h-10 gap-2 px-0 text-base font-bold text-steel hover:bg-transparent hover:text-foreground"
               >
-                <option value="newest">Newest</option>
-                <option value="price-low">Price low</option>
-                <option value="price-high">Price high</option>
-                <option value="name">Name</option>
-              </select>
-              <ChevronDown className="size-5" />
-            </label>
+                Sort by {sortLabels[sortOption]}
+                <ChevronDown className="size-5" />
+              </Button>
+              <div
+                className={cn(
+                  "invisible absolute right-0 top-full z-20 min-w-52 translate-y-2 rounded-lg border bg-popover p-2 text-popover-foreground opacity-0 shadow-lg transition-all",
+                  isSortOpen && "visible translate-y-0 opacity-100",
+                )}
+              >
+                {Object.entries(sortLabels).map(([value, label]) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => selectSortOption(value as SortOption)}
+                    className={cn(
+                      "block w-full rounded-lg px-3 py-2 text-left text-sm font-semibold transition-colors hover:bg-muted",
+                      sortOption === value && "bg-muted",
+                    )}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -252,17 +276,6 @@ const CollectionsFilters = ({
             ))}
           </div>
         </div>
-
-        {filterSections.map((section) => (
-          <button
-            key={section}
-            type="button"
-            className="flex min-h-16 items-center justify-between border-b text-left text-lg font-black"
-          >
-            {section}
-            <ChevronDown className="size-5 text-steel" />
-          </button>
-        ))}
       </div>
     </aside>
   )
