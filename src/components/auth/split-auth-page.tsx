@@ -30,6 +30,10 @@ type SplitAuthPageProps = {
   footerHref: string
   footerLinkLabel: string
   forgotPassword?: boolean
+  isSubmitting?: boolean
+  pendingButtonLabel?: string
+  submitError?: string
+  onSubmit?: (values: AuthFormValues) => void
   children?: ReactNode
 }
 
@@ -41,6 +45,10 @@ const SplitAuthPage = ({
   footerHref,
   footerLinkLabel,
   forgotPassword = false,
+  isSubmitting = false,
+  pendingButtonLabel,
+  submitError,
+  onSubmit,
   children,
 }: SplitAuthPageProps) => {
   const [revealedFields, setRevealedFields] = useState<Record<string, boolean>>(
@@ -54,7 +62,9 @@ const SplitAuthPage = ({
     mode: "onTouched",
   })
 
-  const submitAuthForm = (values: AuthFormValues) => values
+  const submitAuthForm = (values: AuthFormValues) => {
+    onSubmit?.(values)
+  }
 
   const toggleFieldReveal = (name: string) => {
     setRevealedFields((currentFields) => ({
@@ -146,11 +156,20 @@ const SplitAuthPage = ({
                 </Link>
               ) : null}
 
+              {submitError ? (
+                <p className="text-center text-sm font-semibold text-primary">
+                  {submitError}
+                </p>
+              ) : null}
+
               <Button
                 type="submit"
+                disabled={isSubmitting}
                 className="mx-auto mt-7 flex h-11 min-w-32 rounded-full bg-jet px-7 text-base text-white hover:bg-primary"
               >
-                {buttonLabel}
+                {isSubmitting && pendingButtonLabel
+                  ? pendingButtonLabel
+                  : buttonLabel}
               </Button>
             </form>
           )}

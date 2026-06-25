@@ -17,6 +17,24 @@ type RegisterInput = {
   phoneNumber?: string
 }
 
+type LoginInput = {
+  email: string
+  password: string
+}
+
+const loginWithEmailAndPassword = async ({ email, password }: LoginInput) => {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  })
+
+  if (error) {
+    throw error
+  }
+
+  return data
+}
+
 const registerWithEmailAndPassword = async ({
   email,
   password,
@@ -41,4 +59,4 @@ const registerWithEmailAndPassword = async ({
   return data
 }
 
-export { registerWithEmailAndPassword }
+export { loginWithEmailAndPassword, registerWithEmailAndPassword }
