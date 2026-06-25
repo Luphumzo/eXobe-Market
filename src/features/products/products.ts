@@ -53,6 +53,8 @@ const marketplaceProductsQueryKey = (collectionSlug: string) =>
   ["products", "marketplace", collectionSlug] as const
 const productDetailQueryKey = (productId: string) =>
   ["products", "detail", productId] as const
+const productSearchQueryKey = (searchTerm: string) =>
+  ["products", "search", searchTerm] as const
 
 const createProduct = async ({
   categoryId,
@@ -142,6 +144,43 @@ const getProductById = async (productId: string) => {
   return data
 }
 
+const searchProducts = async (searchTerm: string) => {
+  const { data: titleMatches, error: titleError } = await supabase
+    .from("products")
+    .select("*, categories(name, slug)")
+    .eq("status", "active")
+    .ilike("name", `%${searchTerm}%`)
+    .order("created_at", { ascending: false })
+    .limit(10)
+    .returns<Product[]>()
+
+  if (titleError) {
+    throw titleError
+  }
+
+  const { data: collectionMatches, error: collectionError } = await supabase
+    .from("products")
+    .select("*, categories!inner(name, slug)")
+    .eq("status", "active")
+    .or(`name.ilike.%${searchTerm}%,slug.ilike.%${searchTerm}%`, {
+      foreignTable: "categories",
+    })
+    .order("created_at", { ascending: false })
+    .limit(10)
+    .returns<Product[]>()
+
+  if (collectionError) {
+    throw collectionError
+  }
+
+  return [...titleMatches, ...collectionMatches]
+    .filter(
+      (product, index, products) =>
+        products.findIndex((item) => item.id === product.id) === index,
+    )
+    .slice(0, 10)
+}
+
 const updateProduct = async ({
   categoryId,
   description,
@@ -199,6 +238,8 @@ export {
   getSellerProducts,
   marketplaceProductsQueryKey,
   productDetailQueryKey,
+  productSearchQueryKey,
+  searchProducts,
   sellerProductsQueryKey,
   updateProduct,
 }

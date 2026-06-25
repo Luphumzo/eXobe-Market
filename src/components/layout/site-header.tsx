@@ -6,7 +6,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import {
   Heart,
   Menu,
-  Search,
   ShoppingCart,
   UserCircle,
   X,
@@ -15,6 +14,7 @@ import { useState } from "react"
 
 import { menuItems } from "@/app/constants/menu_items"
 import { AccountMenuLink } from "@/components/layout/account-menu-link"
+import { ProductSearch } from "@/components/layout/product-search"
 import { Button } from "@/components/ui/button"
 import {
   authUserQueryKey,
@@ -92,14 +92,7 @@ const SiteHeader = () => {
           ))}
         </nav>
 
-        <form className="ml-auto hidden h-11 w-full max-w-md items-center gap-2 rounded-full bg-white/12 px-4 text-white/80 lg:flex">
-          <Search className="size-5" />
-          <input
-            aria-label="Search"
-            placeholder="Search"
-            className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-white/55"
-          />
-        </form>
+        <ProductSearch className="ml-auto hidden w-full max-w-md lg:block" />
 
         <div className="ml-auto flex items-center gap-1 lg:ml-0">
           <HeaderIcon href="/wishlist" label="Wishlist">
@@ -193,14 +186,7 @@ const SiteHeader = () => {
           isOpen ? "block" : "hidden",
         )}
       >
-        <form className="my-4 flex h-11 items-center gap-2 rounded-full bg-white/12 px-4 text-white/80">
-          <Search className="size-5" />
-          <input
-            aria-label="Search"
-            placeholder="Search"
-            className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-white/55"
-          />
-        </form>
+        <ProductSearch className="my-4" onNavigate={() => setIsOpen(false)} />
         <nav className="grid gap-1">
           {menuItems.map((item) => (
             <div key={item.label} className="rounded-lg">
