@@ -1,11 +1,14 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 
 import { loginFormFields as fields } from "@/app/constants/fields"
 import { SplitAuthPage } from "@/components/auth/split-auth-page"
-import { loginWithEmailAndPassword } from "@/features/auth/auth"
+import {
+  authUserQueryKey,
+  loginWithEmailAndPassword,
+} from "@/features/auth/auth"
 
 type LoginFormValues = {
   email: string
@@ -14,9 +17,11 @@ type LoginFormValues = {
 
 const LoginPage = () => {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const loginMutation = useMutation({
     mutationFn: loginWithEmailAndPassword,
-    onSuccess: () => {
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: authUserQueryKey })
       router.push("/")
     },
   })

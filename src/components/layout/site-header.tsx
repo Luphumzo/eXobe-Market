@@ -1,6 +1,8 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import {
   Heart,
   Menu,
@@ -12,11 +14,33 @@ import {
 import { useState } from "react"
 
 import { menuItems } from "@/app/constants/menu_items"
+import { AccountMenuLink } from "@/components/layout/account-menu-link"
 import { Button } from "@/components/ui/button"
+import {
+  authUserQueryKey,
+  getCurrentUser,
+  logout,
+} from "@/features/auth/auth"
 import { cn } from "@/lib/utils"
 
 const SiteHeader = () => {
   const [isOpen, setIsOpen] = useState(false)
+  const [isAccountOpen, setIsAccountOpen] = useState(false)
+  const router = useRouter()
+  const queryClient = useQueryClient()
+  const { data: user } = useQuery({
+    queryKey: authUserQueryKey,
+    queryFn: getCurrentUser,
+  })
+  const logoutMutation = useMutation({
+    mutationFn: logout,
+    onSuccess: async () => {
+      setIsAccountOpen(false)
+      await queryClient.invalidateQueries({ queryKey: authUserQueryKey })
+      router.push("/")
+    },
+  })
+  const isLoggedIn = Boolean(user)
 
   return (
     <header className="sticky top-0 z-50 border-b bg-jet text-white">
@@ -77,9 +101,63 @@ const SiteHeader = () => {
           <HeaderIcon href="/cart" label="Cart">
             <ShoppingCart />
           </HeaderIcon>
-          <HeaderIcon href="/login" label="Account">
-            <UserCircle />
-          </HeaderIcon>
+          <div
+            className="group relative"
+            onMouseLeave={() => setIsAccountOpen(false)}
+          >
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-lg"
+              aria-label="Account"
+              aria-expanded={isAccountOpen}
+              onClick={() => setIsAccountOpen((current) => !current)}
+              className="text-white hover:bg-white/10 hover:text-white"
+            >
+              <UserCircle />
+            </Button>
+
+            <div
+              className={cn(
+                "invisible absolute right-0 top-full min-w-44 translate-y-2 rounded-lg border bg-popover p-2 text-popover-foreground opacity-0 shadow-lg transition-all group-hover:visible group-hover:translate-y-0 group-hover:opacity-100",
+                isAccountOpen && "visible translate-y-0 opacity-100",
+              )}
+            >
+              {isLoggedIn ? (
+                <>
+                  <AccountMenuLink
+                    href="/account"
+                    onClick={() => setIsAccountOpen(false)}
+                  >
+                    View account
+                  </AccountMenuLink>
+                  <button
+                    type="button"
+                    onClick={() => logoutMutation.mutate()}
+                    disabled={logoutMutation.isPending}
+                    className="block w-full rounded-lg px-3 py-2 text-left text-sm font-semibold transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-60"
+                  >
+                    {logoutMutation.isPending ? "Logging out..." : "Logout"}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <AccountMenuLink
+                    href="/login"
+                    onClick={() => setIsAccountOpen(false)}
+                  >
+                    Login
+                  </AccountMenuLink>
+                  <AccountMenuLink
+                    href="/register"
+                    onClick={() => setIsAccountOpen(false)}
+                  >
+                    Register
+                  </AccountMenuLink>
+                </>
+              )}
+            </div>
+          </div>
           <Button
             type="button"
             variant="ghost"

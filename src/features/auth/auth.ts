@@ -22,6 +22,21 @@ type LoginInput = {
   password: string
 }
 
+const authUserQueryKey = ["auth", "user"] as const
+
+const getCurrentUser = async () => {
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
+
+  if (error) {
+    return null
+  }
+
+  return user
+}
+
 const loginWithEmailAndPassword = async ({ email, password }: LoginInput) => {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
@@ -33,6 +48,14 @@ const loginWithEmailAndPassword = async ({ email, password }: LoginInput) => {
   }
 
   return data
+}
+
+const logout = async () => {
+  const { error } = await supabase.auth.signOut()
+
+  if (error) {
+    throw error
+  }
 }
 
 const registerWithEmailAndPassword = async ({
@@ -59,4 +82,10 @@ const registerWithEmailAndPassword = async ({
   return data
 }
 
-export { loginWithEmailAndPassword, registerWithEmailAndPassword }
+export {
+  authUserQueryKey,
+  getCurrentUser,
+  loginWithEmailAndPassword,
+  logout,
+  registerWithEmailAndPassword,
+}
