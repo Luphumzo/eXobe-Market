@@ -51,6 +51,8 @@ const sellerProductsQueryKey = (sellerId: string) =>
   ["products", "seller", sellerId] as const
 const marketplaceProductsQueryKey = (collectionSlug: string) =>
   ["products", "marketplace", collectionSlug] as const
+const productDetailQueryKey = (productId: string) =>
+  ["products", "detail", productId] as const
 
 const createProduct = async ({
   categoryId,
@@ -125,6 +127,21 @@ const getMarketplaceProducts = async (collectionSlug?: string) => {
   return data
 }
 
+const getProductById = async (productId: string) => {
+  const { data, error } = await supabase
+    .from("products")
+    .select("*, categories(name, slug)")
+    .eq("id", productId)
+    .eq("status", "active")
+    .single<Product>()
+
+  if (error) {
+    throw error
+  }
+
+  return data
+}
+
 const updateProduct = async ({
   categoryId,
   description,
@@ -178,8 +195,10 @@ export {
   createProduct,
   deleteProduct,
   getMarketplaceProducts,
+  getProductById,
   getSellerProducts,
   marketplaceProductsQueryKey,
+  productDetailQueryKey,
   sellerProductsQueryKey,
   updateProduct,
 }
