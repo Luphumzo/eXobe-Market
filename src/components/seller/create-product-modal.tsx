@@ -1,6 +1,7 @@
 "use client"
 
 import { useForm } from "react-hook-form"
+import { useEffect } from "react"
 import { X } from "lucide-react"
 
 import { FormMessage } from "@/components/account/form-message"
@@ -17,8 +18,10 @@ type ProductFormValues = {
 
 type CreateProductModalProps = {
   categories: Category[]
+  initialValues?: Omit<ProductFormValues, "image">
   isCategoriesLoading: boolean
   isPending: boolean
+  mode?: "create" | "edit"
   error?: string
   onClose: () => void
   onSubmit: (values: ProductFormValues) => void
@@ -27,14 +30,28 @@ type CreateProductModalProps = {
 const CreateProductModal = ({
   categories,
   error,
+  initialValues,
   isCategoriesLoading,
   isPending,
+  mode = "create",
   onClose,
   onSubmit,
 }: CreateProductModalProps) => {
   const productForm = useForm<ProductFormValues>({
     mode: "onTouched",
   })
+  const isEditing = mode === "edit"
+
+  useEffect(() => {
+    if (!initialValues) {
+      return
+    }
+
+    productForm.reset({
+      ...initialValues,
+      image: undefined,
+    })
+  }, [initialValues, productForm])
 
   return (
     <div className="fixed inset-0 z-[60] grid place-items-center bg-jet/70 px-4 py-8">
@@ -42,9 +59,11 @@ const CreateProductModal = ({
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-sm font-bold uppercase text-primary">
-              New product
+              {isEditing ? "Edit product" : "New product"}
             </p>
-            <h2 className="mt-2 text-2xl font-black">Create listing</h2>
+            <h2 className="mt-2 text-2xl font-black">
+              {isEditing ? "Update listing" : "Create listing"}
+            </h2>
           </div>
           <Button
             type="button"
@@ -160,7 +179,7 @@ const CreateProductModal = ({
               accept="image/png,image/jpeg,image/webp"
               {...productForm.register("image", {
                 validate: (files) =>
-                  files.length > 0 || "Upload a product image.",
+                  isEditing || files.length > 0 || "Upload a product image.",
               })}
               className="w-full rounded-lg border border-input bg-background px-4 py-3 text-sm file:mr-4 file:rounded-full file:border-0 file:bg-jet file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white"
             />
@@ -187,7 +206,13 @@ const CreateProductModal = ({
               disabled={isPending}
               className="h-11 rounded-full bg-jet px-6 text-white hover:bg-primary"
             >
-              {isPending ? "Creating..." : "Create"}
+              {isPending
+                ? isEditing
+                  ? "Saving..."
+                  : "Creating..."
+                : isEditing
+                  ? "Save changes"
+                  : "Create"}
             </Button>
           </div>
         </form>

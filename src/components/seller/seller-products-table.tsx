@@ -1,14 +1,22 @@
 import Image from "next/image"
+import { Pencil, Trash2 } from "lucide-react"
 
+import { Button } from "@/components/ui/button"
 import type { Product } from "@/features/products/products"
 
 type SellerProductsTableProps = {
+  deletingProductId?: string
   isLoading: boolean
+  onDelete: (product: Product) => void
+  onEdit: (product: Product) => void
   products: Product[]
 }
 
 const SellerProductsTable = ({
+  deletingProductId,
   isLoading,
+  onDelete,
+  onEdit,
   products,
 }: SellerProductsTableProps) => {
   return (
@@ -20,12 +28,13 @@ const SellerProductsTable = ({
             <th className="px-4 py-3 font-bold">Collection</th>
             <th className="px-4 py-3 font-bold">Price</th>
             <th className="px-4 py-3 font-bold">Status</th>
+            <th className="px-4 py-3 font-bold">Actions</th>
           </tr>
         </thead>
         <tbody>
           {isLoading ? (
             <tr>
-              <td className="px-4 py-6 text-steel" colSpan={4}>
+              <td className="px-4 py-6 text-steel" colSpan={5}>
                 Loading products...
               </td>
             </tr>
@@ -60,11 +69,34 @@ const SellerProductsTable = ({
                 <td className="px-4 py-4 capitalize text-steel">
                   {product.status}
                 </td>
+                <td className="px-4 py-4">
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      aria-label={`Edit ${product.name}`}
+                      onClick={() => onEdit(product)}
+                    >
+                      <Pencil className="size-4" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      aria-label={`Delete ${product.name}`}
+                      disabled={deletingProductId === product.id}
+                      onClick={() => onDelete(product)}
+                    >
+                      <Trash2 className="size-4" />
+                    </Button>
+                  </div>
+                </td>
               </tr>
             ))
           ) : (
             <tr>
-              <td className="px-4 py-8 text-steel" colSpan={4}>
+              <td className="px-4 py-8 text-steel" colSpan={5}>
                 No products yet. Create your first listing.
               </td>
             </tr>

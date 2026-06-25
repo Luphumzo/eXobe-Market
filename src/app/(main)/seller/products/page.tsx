@@ -17,8 +17,11 @@ import { authUserQueryKey, getCurrentUser } from "@/features/auth/auth"
 import { categoriesQueryKey, getCategories } from "@/features/categories/categories"
 import {
   createProduct,
+  deleteProduct,
   getSellerProducts,
+  type Product,
   sellerProductsQueryKey,
+  updateProduct,
 } from "@/features/products/products"
 import { getCurrentProfile, profileQueryKey } from "@/features/profiles/profiles"
 
@@ -26,6 +29,7 @@ const SellerProductsPage = () => {
   const router = useRouter()
   const queryClient = useQueryClient()
   const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const { data: user, isLoading: isUserLoading } = useQuery({
     queryKey: authUserQueryKey,
     queryFn: getCurrentUser,
@@ -48,6 +52,19 @@ const SellerProductsPage = () => {
     mutationFn: createProduct,
     onSuccess: async () => {
       setIsCreateOpen(false)
+      await queryClient.invalidateQueries({ queryKey: sellerProductsQueryKey })
+    },
+  })
+  const updateProductMutation = useMutation({
+    mutationFn: updateProduct,
+    onSuccess: async () => {
+      setEditingProduct(null)
+      await queryClient.invalidateQueries({ queryKey: sellerProductsQueryKey })
+    },
+  })
+  const deleteProductMutation = useMutation({
+    mutationFn: deleteProduct,
+    onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: sellerProductsQueryKey })
     },
   })
@@ -84,6 +101,34 @@ const SellerProductsPage = () => {
       price: Number(values.price),
       sellerId: user.id,
     })
+  }
+
+  const submitEditedProduct = (values: ProductFormValues) => {
+    if (!user || !editingProduct) {
+      return
+    }
+
+    const image = values.image.item(0) ?? undefined
+
+    updateProductMutation.mutate({
+      categoryId: values.categoryId,
+      description: values.description,
+      id: editingProduct.id,
+      image,
+      name: values.name,
+      price: Number(values.price),
+      sellerId: user.id,
+    })
+  }
+
+  const handleDeleteProduct = (product: Product) => {
+    const shouldDelete = window.confirm(`Delete ${product.name}?`)
+
+    if (!shouldDelete) {
+      return
+    }
+
+    deleteProductMutation.mutate(product.id)
   }
 
   if (isUserLoading || (user && isProfileLoading)) {
@@ -137,7 +182,10 @@ const SellerProductsPage = () => {
           </div>
 
           <SellerProductsTable
+            deletingProductId={deleteProductMutation.variables}
             isLoading={isProductsLoading}
+            onDelete={handleDeleteProduct}
+            onEdit={setEditingProduct}
             products={products}
           />
         </AccountPanel>
@@ -151,6 +199,24 @@ const SellerProductsPage = () => {
           isPending={createProductMutation.isPending}
           onClose={() => setIsCreateOpen(false)}
           onSubmit={submitProduct}
+        />
+      ) : null}
+
+      {editingProduct ? (
+        <CreateProductModal
+          categories={categories}
+          error={updateProductMutation.error?.message}
+          initialValues={{
+            categoryId: editingProduct.category_id,
+            description: editingProduct.description,
+            name: editingProduct.name,
+            price: String(editingProduct.price),
+          }}
+          isCategoriesLoading={isCategoriesLoading}
+          isPending={updateProductMutation.isPending}
+          mode="edit"
+          onClose={() => setEditingProduct(null)}
+          onSubmit={submitEditedProduct}
         />
       ) : null}
     </main>

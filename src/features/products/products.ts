@@ -32,6 +32,16 @@ type CreateProductInput = {
   image: File
 }
 
+type UpdateProductInput = {
+  id: string
+  sellerId: string
+  categoryId: string
+  name: string
+  description: string
+  price: number
+  image?: File
+}
+
 const sellerProductsQueryKey = ["products", "seller"] as const
 
 const createProduct = async ({
@@ -83,5 +93,56 @@ const getSellerProducts = async (sellerId: string) => {
   return data
 }
 
-export { createProduct, getSellerProducts, sellerProductsQueryKey }
+const updateProduct = async ({
+  categoryId,
+  description,
+  id,
+  image,
+  name,
+  price,
+  sellerId,
+}: UpdateProductInput) => {
+  const imageUrl = image
+    ? await uploadProductImage({
+        file: image,
+        sellerId,
+      })
+    : undefined
+  const { data, error } = await supabase
+    .from("products")
+    .update({
+      category_id: categoryId,
+      description,
+      image_url: imageUrl,
+      name,
+      price,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id)
+    .eq("seller_id", sellerId)
+    .select()
+    .single<Product>()
+
+  if (error) {
+    throw error
+  }
+
+  return data
+}
+
+const deleteProduct = async (productId: string) => {
+  const { error } = await supabase.from("products").delete().eq("id", productId)
+
+  if (error) {
+    throw error
+  }
+}
+
+export {
+  createProduct,
+  deleteProduct,
+  getSellerProducts,
+  sellerProductsQueryKey,
+  updateProduct,
+}
 export type { Product }
