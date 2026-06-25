@@ -1,15 +1,25 @@
+"use client"
+
 import Link from "next/link"
 import type { ReactNode } from "react"
+import { useForm } from "react-hook-form"
 import { Eye } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 
 type AuthField = {
+  name: string
   label: string
   type: string
   placeholder: string
+  autoComplete?: string
   hasReveal?: boolean
+  minLength?: number
+  requiredMessage?: string
+  minLengthMessage?: string
 }
+
+type AuthFormValues = Record<string, string>
 
 type SplitAuthPageProps = {
   title: string
@@ -32,6 +42,16 @@ const SplitAuthPage = ({
   forgotPassword = false,
   children,
 }: SplitAuthPageProps) => {
+  const {
+    formState: { errors },
+    handleSubmit,
+    register,
+  } = useForm<AuthFormValues>({
+    mode: "onTouched",
+  })
+
+  const submitAuthForm = (values: AuthFormValues) => values
+
   return (
     <main className="grid min-h-screen bg-background text-foreground lg:grid-cols-2">
       <section className="flex min-h-screen items-center justify-center px-5 py-12 sm:px-8">
@@ -43,7 +63,11 @@ const SplitAuthPage = ({
           <h1 className="mb-10 text-center text-3xl font-black">{title}</h1>
 
           {children ?? (
-            <form className="space-y-4">
+            <form
+              className="space-y-4"
+              onSubmit={handleSubmit(submitAuthForm)}
+              noValidate
+            >
               {fields.map((field) => (
                 <label key={field.label} className="block">
                   <span className="sr-only">{field.label}</span>
@@ -51,6 +75,28 @@ const SplitAuthPage = ({
                     <input
                       type={field.type}
                       placeholder={field.placeholder}
+                      autoComplete={field.autoComplete}
+                      {...register(field.name, {
+                        required:
+                          field.requiredMessage ??
+                          `${field.label} is required.`,
+                        minLength: field.minLength
+                          ? {
+                              value: field.minLength,
+                              message:
+                                field.minLengthMessage ??
+                                `${field.label} must be at least ${field.minLength} characters.`,
+                            }
+                          : undefined,
+                        pattern:
+                          field.type === "email"
+                            ? {
+                                value: /\S+@\S+\.\S+/,
+                                message: "Enter a valid email address.",
+                              }
+                            : undefined,
+                      })}
+                      aria-invalid={errors[field.name] ? "true" : "false"}
                       className="h-14 w-full rounded-lg border border-jet bg-background px-4 text-base outline-none transition-colors placeholder:text-steel/55 focus:border-primary focus:ring-3 focus:ring-primary/20"
                     />
                     {field.hasReveal ? (
@@ -63,6 +109,11 @@ const SplitAuthPage = ({
                       </button>
                     ) : null}
                   </span>
+                  {errors[field.name]?.message ? (
+                    <span className="mt-2 block text-sm font-semibold text-primary">
+                      {errors[field.name]?.message}
+                    </span>
+                  ) : null}
                 </label>
               ))}
 
