@@ -1,12 +1,15 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { useMutation } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { Eye } from "lucide-react"
 
 import { accountFields, sellerFields } from "@/app/constants/fields"
 import { SplitAuthPage } from "@/components/auth/split-auth-page"
 import { Button } from "@/components/ui/button"
+import { registerWithEmailAndPassword } from "@/features/auth/auth"
 
 type AccountType = "customer" | "seller"
 
@@ -23,8 +26,12 @@ type RegisterFormValues = {
 }
 
 const RegisterPage = () => {
+  const router = useRouter()
   const [accountType, setAccountType] = useState<AccountType>("customer")
   const [step, setStep] = useState(1)
+  const [revealedFields, setRevealedFields] = useState<Record<string, boolean>>(
+    {},
+  )
   const {
     formState: { errors },
     getValues,
@@ -37,6 +44,12 @@ const RegisterPage = () => {
   })
   const isSeller = accountType === "seller"
   const currentFields = isSeller && step === 2 ? sellerFields : accountFields
+  const registerMutation = useMutation({
+    mutationFn: registerWithEmailAndPassword,
+    onSuccess: () => {
+      router.push("/login")
+    },
+  })
 
   const handleAccountTypeChange = (value: AccountType) => {
     setAccountType(value)
@@ -68,7 +81,19 @@ const RegisterPage = () => {
     setStep(2)
   }
 
-  const submitRegistration = (values: RegisterFormValues) => values
+  const toggleFieldReveal = (name: string) => {
+    setRevealedFields((currentFields) => ({
+      ...currentFields,
+      [name]: !currentFields[name],
+    }))
+  }
+
+  const submitRegistration = (values: RegisterFormValues) => {
+    registerMutation.mutate({
+      ...values,
+      accountType,
+    })
+  }
 
   return (
     <SplitAuthPage
@@ -128,7 +153,11 @@ const RegisterPage = () => {
             <span className="sr-only">{field.label}</span>
             <span className="relative block">
               <input
-                type={field.type}
+                type={
+                  field.hasReveal && revealedFields[field.name]
+                    ? "text"
+                    : field.type
+                }
                 placeholder={field.placeholder}
                 autoComplete={field.autoComplete}
                 {...register(field.name as keyof RegisterFormValues, {
@@ -165,7 +194,12 @@ const RegisterPage = () => {
               {field.hasReveal ? (
                 <button
                   type="button"
-                  aria-label="Show password"
+                  aria-label={
+                    revealedFields[field.name]
+                      ? "Hide password"
+                      : "Show password"
+                  }
+                  onClick={() => toggleFieldReveal(field.name)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-steel"
                 >
                   <Eye className="size-5" />
@@ -179,6 +213,18 @@ const RegisterPage = () => {
             ) : null}
           </label>
         ))}
+
+        {registerMutation.isError ? (
+          <p className="text-center text-sm font-semibold text-primary">
+            {registerMutation.error.message}
+          </p>
+        ) : null}
+
+        {registerMutation.isSuccess ? (
+          <p className="text-center text-sm font-semibold text-foreground">
+            Account created successfully.
+          </p>
+        ) : null}
 
         <div className="flex justify-center gap-3 pt-3">
           {isSeller && step === 2 ? (
@@ -203,9 +249,10 @@ const RegisterPage = () => {
           ) : (
             <Button
               type="submit"
+              disabled={registerMutation.isPending}
               className="h-11 rounded-full bg-jet px-7 text-base text-white hover:bg-primary"
             >
-              Register
+              {registerMutation.isPending ? "Creating..." : "Register"}
             </Button>
           )}
         </div>
