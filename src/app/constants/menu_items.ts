@@ -11,7 +11,7 @@ export type MenuItem = {
 export const menuItems: MenuItem[] = [
   {
     label: "Collections",
-    href: "/collections/all",
+    href: "/collections",
     subitems: [
       {
         label: "Bags",
