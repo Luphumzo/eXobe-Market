@@ -59,10 +59,15 @@ const logout = async () => {
 }
 
 const registerWithEmailAndPassword = async ({
-  email,
-  password,
-  fullName,
   accountType,
+  businessDescription,
+  businessName,
+  email,
+  fullName,
+  industry,
+  location,
+  password,
+  phoneNumber,
 }: RegisterInput) => {
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -77,6 +82,48 @@ const registerWithEmailAndPassword = async ({
 
   if (error) {
     throw error
+  }
+
+  if (!data.user) {
+    throw new Error("Could not create user account.")
+  }
+
+  const { error: profileError } = await supabase.from("profiles").insert({
+    id: data.user.id,
+    full_name: fullName,
+    email,
+    account_type: accountType,
+  })
+
+  if (profileError) {
+    throw profileError
+  }
+
+  if (accountType === "seller") {
+    if (
+      !businessName ||
+      !businessDescription ||
+      !location ||
+      !industry ||
+      !phoneNumber
+    ) {
+      throw new Error("Business details are required for seller accounts.")
+    }
+
+    const { error: businessProfileError } = await supabase
+      .from("business_profiles")
+      .insert({
+        user_id: data.user.id,
+        business_name: businessName,
+        business_description: businessDescription,
+        location,
+        industry,
+        phone_number: phoneNumber,
+      })
+
+    if (businessProfileError) {
+      throw businessProfileError
+    }
   }
 
   return data
