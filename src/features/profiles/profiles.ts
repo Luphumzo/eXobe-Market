@@ -28,7 +28,7 @@ type UpdateProfileInput = {
   accountType: AccountType
 }
 
-const profileQueryKey = ["profile", "current"] as const
+const profileQueryKey = (userId: string) => ["profile", "current", userId] as const
 
 const createProfile = async ({
   accountType,

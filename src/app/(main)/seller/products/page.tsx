@@ -35,7 +35,7 @@ const SellerProductsPage = () => {
     queryFn: getCurrentUser,
   })
   const { data: profile, isLoading: isProfileLoading } = useQuery({
-    queryKey: profileQueryKey,
+    queryKey: profileQueryKey(user?.id ?? ""),
     queryFn: getCurrentProfile,
     enabled: Boolean(user),
   })
@@ -44,7 +44,7 @@ const SellerProductsPage = () => {
     queryFn: getCategories,
   })
   const { data: products = [], isLoading: isProductsLoading } = useQuery({
-    queryKey: sellerProductsQueryKey,
+    queryKey: sellerProductsQueryKey(user?.id ?? ""),
     queryFn: () => getSellerProducts(user?.id ?? ""),
     enabled: Boolean(user),
   })
@@ -52,20 +52,26 @@ const SellerProductsPage = () => {
     mutationFn: createProduct,
     onSuccess: async () => {
       setIsCreateOpen(false)
-      await queryClient.invalidateQueries({ queryKey: sellerProductsQueryKey })
+      await queryClient.invalidateQueries({
+        queryKey: sellerProductsQueryKey(user?.id ?? ""),
+      })
     },
   })
   const updateProductMutation = useMutation({
     mutationFn: updateProduct,
     onSuccess: async () => {
       setEditingProduct(null)
-      await queryClient.invalidateQueries({ queryKey: sellerProductsQueryKey })
+      await queryClient.invalidateQueries({
+        queryKey: sellerProductsQueryKey(user?.id ?? ""),
+      })
     },
   })
   const deleteProductMutation = useMutation({
     mutationFn: deleteProduct,
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: sellerProductsQueryKey })
+      await queryClient.invalidateQueries({
+        queryKey: sellerProductsQueryKey(user?.id ?? ""),
+      })
     },
   })
   const isSeller = profile?.account_type === "seller"
@@ -128,7 +134,14 @@ const SellerProductsPage = () => {
       return
     }
 
-    deleteProductMutation.mutate(product.id)
+    if (!user) {
+      return
+    }
+
+    deleteProductMutation.mutate({
+      productId: product.id,
+      sellerId: user.id,
+    })
   }
 
   if (isUserLoading || (user && isProfileLoading)) {
@@ -182,7 +195,7 @@ const SellerProductsPage = () => {
           </div>
 
           <SellerProductsTable
-            deletingProductId={deleteProductMutation.variables}
+            deletingProductId={deleteProductMutation.variables?.productId}
             isLoading={isProductsLoading}
             onDelete={handleDeleteProduct}
             onEdit={setEditingProduct}

@@ -46,7 +46,7 @@ const AccountPage = () => {
     queryFn: getCurrentUser,
   })
   const { data: profile, isLoading: isProfileLoading } = useQuery({
-    queryKey: profileQueryKey,
+    queryKey: profileQueryKey(user?.id ?? ""),
     queryFn: getCurrentProfile,
     enabled: Boolean(user),
   })
@@ -54,7 +54,7 @@ const AccountPage = () => {
   const visibleTab = !isSeller && activeTab === "business" ? "personal" : activeTab
   const { data: businessProfile, isLoading: isBusinessProfileLoading } =
     useQuery({
-      queryKey: businessProfileQueryKey,
+      queryKey: businessProfileQueryKey(user?.id ?? ""),
       queryFn: getCurrentBusinessProfile,
       enabled: Boolean(user) && isSeller,
     })
@@ -69,14 +69,18 @@ const AccountPage = () => {
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: authUserQueryKey }),
-        queryClient.invalidateQueries({ queryKey: profileQueryKey }),
+        queryClient.invalidateQueries({
+          queryKey: profileQueryKey(user?.id ?? ""),
+        }),
       ])
     },
   })
   const updateBusinessProfileMutation = useMutation({
     mutationFn: updateBusinessProfile,
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: businessProfileQueryKey })
+      await queryClient.invalidateQueries({
+        queryKey: businessProfileQueryKey(user?.id ?? ""),
+      })
     },
   })
 

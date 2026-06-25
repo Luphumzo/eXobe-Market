@@ -26,7 +26,8 @@ type CreateBusinessProfileInput = {
 
 type UpdateBusinessProfileInput = CreateBusinessProfileInput
 
-const businessProfileQueryKey = ["business-profile", "current"] as const
+const businessProfileQueryKey = (userId: string) =>
+  ["business-profile", "current", userId] as const
 
 const createBusinessProfile = async ({
   businessDescription,

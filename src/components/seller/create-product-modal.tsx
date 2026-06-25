@@ -192,19 +192,19 @@ const CreateProductModal = ({
 
           <FormMessage error={error} />
 
-          <div className="flex justify-end gap-3">
+          <div className="relative z-10 flex justify-end gap-3">
             <Button
               type="button"
               variant="outline"
               onClick={onClose}
-              className="h-11 rounded-full px-6"
+              className="h-11 min-w-24 rounded-full px-6"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={isPending}
-              className="h-11 rounded-full bg-jet px-6 text-white hover:bg-primary"
+              className="h-11 min-w-28 rounded-full bg-jet px-6 text-white hover:bg-primary"
             >
               {isPending
                 ? isEditing

@@ -42,7 +42,13 @@ type UpdateProductInput = {
   image?: File
 }
 
-const sellerProductsQueryKey = ["products", "seller"] as const
+type DeleteProductInput = {
+  productId: string
+  sellerId: string
+}
+
+const sellerProductsQueryKey = (sellerId: string) =>
+  ["products", "seller", sellerId] as const
 
 const createProduct = async ({
   categoryId,
@@ -130,8 +136,12 @@ const updateProduct = async ({
   return data
 }
 
-const deleteProduct = async (productId: string) => {
-  const { error } = await supabase.from("products").delete().eq("id", productId)
+const deleteProduct = async ({ productId, sellerId }: DeleteProductInput) => {
+  const { error } = await supabase
+    .from("products")
+    .delete()
+    .eq("id", productId)
+    .eq("seller_id", sellerId)
 
   if (error) {
     throw error

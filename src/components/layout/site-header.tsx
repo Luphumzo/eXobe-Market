@@ -34,7 +34,7 @@ const SiteHeader = () => {
     queryFn: getCurrentUser,
   })
   const { data: profile } = useQuery({
-    queryKey: profileQueryKey,
+    queryKey: profileQueryKey(user?.id ?? ""),
     queryFn: getCurrentProfile,
     enabled: Boolean(user),
   })
@@ -42,7 +42,7 @@ const SiteHeader = () => {
     mutationFn: logout,
     onSuccess: async () => {
       setIsAccountOpen(false)
-      await queryClient.invalidateQueries({ queryKey: authUserQueryKey })
+      queryClient.clear()
       router.push("/")
     },
   })
