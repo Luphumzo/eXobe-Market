@@ -21,6 +21,7 @@ import {
   getCurrentUser,
   logout,
 } from "@/features/auth/auth"
+import { getCurrentProfile, profileQueryKey } from "@/features/profiles/profiles"
 import { cn } from "@/lib/utils"
 
 const SiteHeader = () => {
@@ -32,6 +33,11 @@ const SiteHeader = () => {
     queryKey: authUserQueryKey,
     queryFn: getCurrentUser,
   })
+  const { data: profile } = useQuery({
+    queryKey: profileQueryKey,
+    queryFn: getCurrentProfile,
+    enabled: Boolean(user),
+  })
   const logoutMutation = useMutation({
     mutationFn: logout,
     onSuccess: async () => {
@@ -41,6 +47,7 @@ const SiteHeader = () => {
     },
   })
   const isLoggedIn = Boolean(user)
+  const isSeller = profile?.account_type === "seller"
 
   return (
     <header className="sticky top-0 z-50 border-b bg-jet text-white">
@@ -125,6 +132,14 @@ const SiteHeader = () => {
             >
               {isLoggedIn ? (
                 <>
+                  {isSeller ? (
+                    <AccountMenuLink
+                      href="/seller/products"
+                      onClick={() => setIsAccountOpen(false)}
+                    >
+                      Portal
+                    </AccountMenuLink>
+                  ) : null}
                   <AccountMenuLink
                     href="/account"
                     onClick={() => setIsAccountOpen(false)}
