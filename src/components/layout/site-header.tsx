@@ -21,6 +21,7 @@ import {
   getCurrentUser,
   logout,
 } from "@/features/auth/auth"
+import { useCart } from "@/features/cart/cart-provider"
 import { getCurrentProfile, profileQueryKey } from "@/features/profiles/profiles"
 import { cn } from "@/lib/utils"
 
@@ -29,6 +30,7 @@ const SiteHeader = () => {
   const [isAccountOpen, setIsAccountOpen] = useState(false)
   const router = useRouter()
   const queryClient = useQueryClient()
+  const { cartCount } = useCart()
   const { data: user } = useQuery({
     queryKey: authUserQueryKey,
     queryFn: getCurrentUser,
@@ -98,7 +100,7 @@ const SiteHeader = () => {
           <HeaderIcon href="/wishlist" label="Wishlist">
             <Heart />
           </HeaderIcon>
-          <HeaderIcon href="/cart" label="Cart">
+          <HeaderIcon badgeCount={cartCount} href="/cart" label="Cart">
             <ShoppingCart />
           </HeaderIcon>
           <div
@@ -223,7 +225,9 @@ const HeaderIcon = ({
   href,
   label,
   children,
+  badgeCount,
 }: {
+  badgeCount?: number
   href: string
   label: string
   children: React.ReactNode
@@ -235,8 +239,13 @@ const HeaderIcon = ({
       size="icon-lg"
       className="text-white hover:bg-white/10 hover:text-white"
     >
-      <Link href={href} aria-label={label}>
+      <Link href={href} aria-label={label} className="relative">
         {children}
+        {badgeCount ? (
+          <span className="absolute -right-1 -top-1 grid min-h-4 min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] font-black leading-none text-white">
+            {badgeCount}
+          </span>
+        ) : null}
       </Link>
     </Button>
   )

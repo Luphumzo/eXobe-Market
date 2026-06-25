@@ -115,7 +115,7 @@ const ProductSearch = ({ className, onNavigate }: ProductSearchProps) => {
                       <ProductCard
                         key={product.id}
                         product={product}
-                        className="[&_article>div:first-child]:rounded-2xl [&_h3]:text-sm [&_h3]:leading-snug [&_p:first-of-type]:mt-2 [&_p:first-of-type]:text-sm [&_p:last-child]:hidden sm:[&_h3]:text-lg sm:[&_p:first-of-type]:text-base"
+                        className="[&>div:first-child>a>div]:rounded-2xl [&>div:first-child>button]:size-8 [&_h3]:text-sm [&_h3]:leading-snug [&_p:first-of-type]:mt-2 [&_p:first-of-type]:text-sm [&_p:last-child]:hidden sm:[&_h3]:text-lg sm:[&_p:first-of-type]:text-base"
                       />
                     ))}
                   </div>

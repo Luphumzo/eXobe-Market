@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query"
 import { ChevronLeft, Heart, ShoppingCart } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { useCart } from "@/features/cart/cart-provider"
 import {
   getProductById,
   productDetailQueryKey,
@@ -24,6 +25,7 @@ const formatProductPrice = (product: Product) => {
 }
 
 const ProductDetailView = ({ productId }: ProductDetailViewProps) => {
+  const { addProduct } = useCart()
   const {
     data: product,
     error,
@@ -102,6 +104,7 @@ const ProductDetailView = ({ productId }: ProductDetailViewProps) => {
               <Button
                 type="button"
                 className="h-12 rounded-full bg-jet px-8 text-base font-black text-white hover:bg-primary"
+                onClick={() => addProduct(product)}
               >
                 <ShoppingCart className="size-5" />
                 Add to cart

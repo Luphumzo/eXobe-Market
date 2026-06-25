@@ -1,6 +1,11 @@
+"use client"
+
 import Image from "next/image"
 import Link from "next/link"
+import { Plus } from "lucide-react"
 
+import { Button } from "@/components/ui/button"
+import { useCart } from "@/features/cart/cart-provider"
 import type { Product } from "@/features/products/products"
 import { cn } from "@/lib/utils"
 
@@ -27,28 +32,51 @@ const ProductCard = ({
   product,
 }: ProductCardProps) => {
   const productHref = href ?? `/products/${product.id}`
+  const { addProduct } = useCart()
+
   return (
-    <Link
-      href={productHref}
-      className="block rounded-3xl outline-none focus-visible:ring-3 focus-visible:ring-primary/30"
-    >
-      <article className={cn("group min-w-0", className)}>
-        <div className="relative aspect-square overflow-hidden rounded-3xl border bg-muted">
-          {badgeLabel ? (
-            <span className="absolute left-4 top-4 z-10 rounded-full bg-jet px-5 py-2 text-sm font-black text-white sm:text-base">
-              {badgeLabel}
-            </span>
-          ) : null}
+    <article className={cn("group min-w-0", className)}>
+      <div className="relative">
+        <Link
+          href={productHref}
+          className="block rounded-3xl outline-none focus-visible:ring-3 focus-visible:ring-primary/30"
+        >
+          <div className="relative aspect-square overflow-hidden rounded-3xl border bg-muted">
+            {badgeLabel ? (
+              <span className="absolute left-4 top-4 z-10 rounded-full bg-jet px-5 py-2 text-sm font-black text-white sm:text-base">
+                {badgeLabel}
+              </span>
+            ) : null}
 
-          <Image
-            src={product.image_url}
-            alt={product.name}
-            fill
-            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-            className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-          />
-        </div>
+            <Image
+              src={product.image_url}
+              alt={product.name}
+              fill
+              sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+              className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+            />
+          </div>
+        </Link>
 
+        <Button
+          type="button"
+          size="icon-lg"
+          className="absolute bottom-4 right-4 z-10 rounded-full bg-jet text-white shadow-md hover:bg-primary"
+          aria-label={`Add ${product.name} to cart`}
+          onClick={(event) => {
+            event.preventDefault()
+            event.stopPropagation()
+            addProduct(product)
+          }}
+        >
+          <Plus className="size-5" />
+        </Button>
+      </div>
+
+      <Link
+        href={productHref}
+        className="block rounded-lg outline-none focus-visible:ring-3 focus-visible:ring-primary/30"
+      >
         <div className="mt-4 px-2">
           <h3 className="text-xl font-black leading-snug sm:text-2xl">
             {product.name}
@@ -60,8 +88,8 @@ const ProductCard = ({
             {colorCount} {colorCount === 1 ? "Color" : "Colors"}
           </p>
         </div>
-      </article>
-    </Link>
+      </Link>
+    </article>
   )
 }
 
