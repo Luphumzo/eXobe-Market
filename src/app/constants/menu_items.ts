@@ -11,15 +11,23 @@ export type MenuItem = {
 export const menuItems: MenuItem[] = [
   {
     label: "Collections",
-    href: "/marketplace/collections",
+    href: "/collections/all",
     subitems: [
       {
         label: "Bags",
-        href: "/collections/Bags",
+        href: "/collections/bags",
       },
       {
-        label: "",
-        href: "/collections/hair-care",
+        label: "Homeware",
+        href: "/collections/homeware",
+      },
+      {
+        label: "Beauty",
+        href: "/collections/beauty",
+      },
+      {
+        label: "Clothing",
+        href: "/collections/clothing",
       },
     ],
   },

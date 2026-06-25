@@ -49,6 +49,8 @@ type DeleteProductInput = {
 
 const sellerProductsQueryKey = (sellerId: string) =>
   ["products", "seller", sellerId] as const
+const marketplaceProductsQueryKey = (collectionSlug: string) =>
+  ["products", "marketplace", collectionSlug] as const
 
 const createProduct = async ({
   categoryId,
@@ -91,6 +93,30 @@ const getSellerProducts = async (sellerId: string) => {
     .eq("seller_id", sellerId)
     .order("created_at", { ascending: false })
     .returns<Product[]>()
+
+  if (error) {
+    throw error
+  }
+
+  return data
+}
+
+const getMarketplaceProducts = async (collectionSlug?: string) => {
+  let productsQuery = supabase
+    .from("products")
+    .select(
+      collectionSlug
+        ? "*, categories!inner(name, slug)"
+        : "*, categories(name, slug)",
+    )
+    .eq("status", "active")
+    .order("created_at", { ascending: false })
+
+  if (collectionSlug) {
+    productsQuery = productsQuery.eq("categories.slug", collectionSlug)
+  }
+
+  const { data, error } = await productsQuery.returns<Product[]>()
 
   if (error) {
     throw error
@@ -151,7 +177,9 @@ const deleteProduct = async ({ productId, sellerId }: DeleteProductInput) => {
 export {
   createProduct,
   deleteProduct,
+  getMarketplaceProducts,
   getSellerProducts,
+  marketplaceProductsQueryKey,
   sellerProductsQueryKey,
   updateProduct,
 }
