@@ -10,6 +10,8 @@ import { accountFields, sellerFields } from "@/app/constants/fields"
 import { SplitAuthPage } from "@/components/auth/split-auth-page"
 import { Button } from "@/components/ui/button"
 import { registerWithEmailAndPassword } from "@/features/auth/auth"
+import { createBusinessProfile } from "@/features/business-profiles/business-profiles"
+import { createProfile } from "@/features/profiles/profiles"
 
 type AccountType = "customer" | "seller"
 
@@ -45,7 +47,31 @@ const RegisterPage = () => {
   const isSeller = accountType === "seller"
   const currentFields = isSeller && step === 2 ? sellerFields : accountFields
   const registerMutation = useMutation({
-    mutationFn: registerWithEmailAndPassword,
+    mutationFn: async (values: RegisterFormValues & { accountType: AccountType }) => {
+      const authData = await registerWithEmailAndPassword(values)
+
+      if (!authData.user) {
+        throw new Error("Could not create user account.")
+      }
+
+      await createProfile({
+        accountType: values.accountType,
+        email: values.email,
+        fullName: values.fullName,
+        id: authData.user.id,
+      })
+
+      if (values.accountType === "seller") {
+        await createBusinessProfile({
+          businessDescription: values.businessDescription,
+          businessName: values.businessName,
+          industry: values.industry,
+          location: values.location,
+          phoneNumber: values.phoneNumber,
+          userId: authData.user.id,
+        })
+      }
+    },
     onSuccess: () => {
       router.push("/login")
     },
