@@ -14,13 +14,8 @@ import {
 
 import { Button } from "@/components/ui/button"
 import { useCart } from "@/features/cart/cart-provider"
-
-const formatMoney = (amount: number, currency = "ZAR") => {
-  return new Intl.NumberFormat("en-ZA", {
-    currency,
-    style: "currency",
-  }).format(amount)
-}
+import { formatCurrency } from "@/features/currency/currency-format"
+import { useCurrency } from "@/features/currency/currency-provider"
 
 type CheckoutFormValues = {
   addressLine1: string
@@ -49,7 +44,7 @@ const CheckoutPage = () => {
   const [isPaying, setIsPaying] = useState(false)
   const [isPaymentSuccessful, setIsPaymentSuccessful] = useState(false)
   const [paidTotal, setPaidTotal] = useState(0)
-  const currency = items[0]?.currency ?? "ZAR"
+  const { currency } = useCurrency()
   const {
     formState: { errors },
     handleSubmit,
@@ -90,8 +85,8 @@ const CheckoutPage = () => {
           </div>
           <h1 className="mt-6 text-3xl font-black">Payment successful</h1>
           <p className="mt-3 text-sm leading-6 text-steel">
-            Your order request for {formatMoney(paidTotal, currency)} has been
-            received. Redirecting you back to collections.
+            Your order request for {formatCurrency(paidTotal, currency)} has
+            been received. Redirecting you back to collections.
           </p>
           <Button
             asChild
@@ -190,7 +185,7 @@ const CheckoutPage = () => {
                     Processing payment
                   </>
                 ) : (
-                  `Pay ${formatMoney(cartTotal, currency)}`
+                  `Pay ${formatCurrency(cartTotal, currency)}`
                 )}
               </Button>
             </form>
@@ -222,7 +217,7 @@ const CheckoutPage = () => {
                   <p className="mt-1 text-steel">Qty {item.quantity}</p>
                 </div>
                 <p className="font-black">
-                  {formatMoney(item.price * item.quantity, item.currency)}
+                  {formatCurrency(item.price * item.quantity, currency)}
                 </p>
               </div>
             ))}
@@ -231,12 +226,12 @@ const CheckoutPage = () => {
             <div className="flex items-center justify-between gap-4">
               <span className="text-sm font-semibold text-steel">Total</span>
               <span className="text-xl font-black">
-                {formatMoney(cartTotal, currency)}
+                {formatCurrency(cartTotal, currency)}
               </span>
             </div>
             <p className="mt-3 text-xs leading-5 text-steel">
-              Payment is simulated for this assessment. No real payment is
-              processed.
+              Payment is simulated for this assessment. Currency conversion is
+              indicative and no real payment is processed.
             </p>
           </div>
         </aside>

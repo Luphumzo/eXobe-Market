@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Menu, ShoppingCart, UserCircle, X } from "lucide-react"
+import { ChevronDown, Menu, ShoppingCart, UserCircle, X } from "lucide-react"
 import { useState } from "react"
 
 import { menuItems } from "@/app/constants/menu_items"
@@ -16,15 +16,23 @@ import {
   logout,
 } from "@/features/auth/auth"
 import { useCart } from "@/features/cart/cart-provider"
+import {
+  currencyLabels,
+  supportedCurrencies,
+  useCurrency,
+} from "@/features/currency/currency-provider"
 import { getCurrentProfile, profileQueryKey } from "@/features/profiles/profiles"
 import { cn } from "@/lib/utils"
 
 const SiteHeader = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [isAccountOpen, setIsAccountOpen] = useState(false)
+  const [isCurrencyOpen, setIsCurrencyOpen] = useState(false)
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
   const router = useRouter()
   const queryClient = useQueryClient()
   const { cartCount } = useCart()
+  const { currency, setCurrency } = useCurrency()
   const { data: user } = useQuery({
     queryKey: authUserQueryKey,
     queryFn: getCurrentUser,
@@ -46,7 +54,7 @@ const SiteHeader = () => {
   const isSeller = profile?.account_type === "seller"
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-jet text-white">
+    <header className="sticky top-0 z-[70] border-b bg-jet text-white">
       <div className="mx-auto flex h-20 max-w-7xl items-center gap-5 px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex shrink-0 items-center gap-2">
           <span className="text-4xl font-black leading-none tracking-normal">
@@ -54,7 +62,12 @@ const SiteHeader = () => {
           </span>
         </Link>
 
-        <nav className="hidden flex-1 items-center gap-1 lg:flex">
+        <nav
+          className={cn(
+            "hidden flex-1 items-center gap-1 lg:flex",
+            isSearchOpen && "lg:hidden",
+          )}
+        >
           {menuItems.map((item) => (
             <div key={item.label} className="group relative">
               <Link
@@ -65,7 +78,7 @@ const SiteHeader = () => {
               </Link>
 
               {item.subitems?.length ? (
-                <div className="invisible absolute left-0 top-full min-w-72 translate-y-2 rounded-lg border bg-popover p-2 text-popover-foreground opacity-0 shadow-lg transition-all group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
+                <div className="invisible absolute left-0 top-full z-[90] min-w-72 translate-y-2 rounded-lg border bg-popover p-2 text-popover-foreground opacity-0 shadow-lg transition-all group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
                   {item.subitems.map((subitem) => (
                     <Link
                       key={subitem.href}
@@ -88,9 +101,65 @@ const SiteHeader = () => {
           ))}
         </nav>
 
-        <ProductSearch className="ml-auto hidden w-full max-w-md lg:block" />
+        <ProductSearch
+          className={cn(
+            "ml-auto hidden w-full lg:block",
+            isSearchOpen ? "max-w-3xl" : "max-w-md",
+          )}
+          onOpenChange={(isOpen) => {
+            setIsSearchOpen(isOpen)
 
-        <div className="ml-auto flex items-center gap-1 lg:ml-0">
+            if (isOpen) {
+              setIsAccountOpen(false)
+            }
+          }}
+        />
+
+        <div
+          className={cn(
+            "ml-auto flex items-center gap-1 lg:ml-0",
+            isSearchOpen && "lg:hidden",
+          )}
+        >
+          <div
+            className="relative"
+            onMouseLeave={() => setIsCurrencyOpen(false)}
+          >
+            <Button
+              type="button"
+              variant="ghost"
+              aria-label="Currency"
+              aria-expanded={isCurrencyOpen}
+              onClick={() => setIsCurrencyOpen((current) => !current)}
+              className="h-9 gap-1 rounded-full border border-white/15 bg-white/10 px-3 text-xs font-black text-white hover:bg-white/15 hover:text-white"
+            >
+              {currencyLabels[currency]}
+              <ChevronDown className="size-3.5" />
+            </Button>
+            <div
+              className={cn(
+                "invisible absolute right-0 top-full z-[90] min-w-32 translate-y-2 rounded-lg border bg-popover p-2 text-popover-foreground opacity-0 shadow-lg transition-all",
+                isCurrencyOpen && "visible translate-y-0 opacity-100",
+              )}
+            >
+              {supportedCurrencies.map((currencyCode) => (
+                <button
+                  key={currencyCode}
+                  type="button"
+                  onClick={() => {
+                    setCurrency(currencyCode)
+                    setIsCurrencyOpen(false)
+                  }}
+                  className={cn(
+                    "block w-full rounded-lg px-3 py-2 text-left text-sm font-semibold transition-colors hover:bg-muted",
+                    currency === currencyCode && "bg-muted",
+                  )}
+                >
+                  {currencyLabels[currencyCode]}
+                </button>
+              ))}
+            </div>
+          </div>
           <HeaderIcon badgeCount={cartCount} href="/cart" label="Cart">
             <ShoppingCart />
           </HeaderIcon>
@@ -112,7 +181,7 @@ const SiteHeader = () => {
 
             <div
               className={cn(
-                "invisible absolute right-0 top-full min-w-44 translate-y-2 rounded-lg border bg-popover p-2 text-popover-foreground opacity-0 shadow-lg transition-all group-hover:visible group-hover:translate-y-0 group-hover:opacity-100",
+                "invisible absolute right-0 top-full z-[90] min-w-44 translate-y-2 rounded-lg border bg-popover p-2 text-popover-foreground opacity-0 shadow-lg transition-all group-hover:visible group-hover:translate-y-0 group-hover:opacity-100",
                 isAccountOpen && "visible translate-y-0 opacity-100",
               )}
             >
@@ -179,8 +248,12 @@ const SiteHeader = () => {
           isOpen ? "block" : "hidden",
         )}
       >
-        <ProductSearch className="my-4" onNavigate={() => setIsOpen(false)} />
-        <nav className="grid gap-1">
+        <ProductSearch
+          className="my-4"
+          onNavigate={() => setIsOpen(false)}
+          onOpenChange={setIsSearchOpen}
+        />
+        <nav className={cn("grid gap-1", isSearchOpen && "hidden")}>
           {menuItems.map((item) => (
             <div key={item.label} className="rounded-lg">
               <Link

@@ -6,6 +6,8 @@ import { Plus } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { useCart } from "@/features/cart/cart-provider"
+import { formatCurrency } from "@/features/currency/currency-format"
+import { useCurrency } from "@/features/currency/currency-provider"
 import type { Product } from "@/features/products/products"
 import { cn } from "@/lib/utils"
 
@@ -17,13 +19,6 @@ type ProductCardProps = {
   product: Product
 }
 
-const formatProductPrice = (product: Product) => {
-  return new Intl.NumberFormat("en-ZA", {
-    currency: product.currency,
-    style: "currency",
-  }).format(Number(product.price))
-}
-
 const ProductCard = ({
   badgeLabel,
   className,
@@ -33,6 +28,7 @@ const ProductCard = ({
 }: ProductCardProps) => {
   const productHref = href ?? `/products/${product.id}`
   const { addProduct } = useCart()
+  const { currency } = useCurrency()
 
   return (
     <article className={cn("group min-w-0", className)}>
@@ -82,7 +78,7 @@ const ProductCard = ({
             {product.name}
           </h3>
           <p className="mt-3 text-lg font-black">
-            {formatProductPrice(product)}
+            {formatCurrency(Number(product.price), currency)}
           </p>
           <p className="mt-2 text-base text-steel">
             {colorCount} {colorCount === 1 ? "Color" : "Colors"}

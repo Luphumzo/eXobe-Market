@@ -6,17 +6,12 @@ import { Minus, Plus, Trash2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { useCart, type CartItem } from "@/features/cart/cart-provider"
-
-const formatMoney = (amount: number, currency = "ZAR") => {
-  return new Intl.NumberFormat("en-ZA", {
-    currency,
-    style: "currency",
-  }).format(amount)
-}
+import { formatCurrency } from "@/features/currency/currency-format"
+import { useCurrency } from "@/features/currency/currency-provider"
 
 const CartPage = () => {
   const { cartTotal, clearCart, items } = useCart()
-  const currency = items[0]?.currency ?? "ZAR"
+  const { currency } = useCurrency()
 
   return (
     <main className="min-h-screen bg-background px-4 py-8 text-foreground sm:px-6 lg:px-8">
@@ -66,7 +61,7 @@ const CartPage = () => {
             <div className="flex items-center justify-between gap-4 text-steel">
               <span>Subtotal</span>
               <span className="font-black text-foreground">
-                {formatMoney(cartTotal, currency)}
+                {formatCurrency(cartTotal, currency)}
               </span>
             </div>
             <div className="flex items-center justify-between gap-4 text-steel">
@@ -100,6 +95,7 @@ const CartPage = () => {
 
 const CartProductRow = ({ item }: { item: CartItem }) => {
   const { removeItem, updateQuantity } = useCart()
+  const { currency } = useCurrency()
 
   return (
     <article className="grid gap-4 rounded-lg border bg-white p-4 shadow-sm sm:grid-cols-[96px_minmax(0,1fr)_auto] sm:items-center">
@@ -121,7 +117,7 @@ const CartProductRow = ({ item }: { item: CartItem }) => {
           {item.name}
         </Link>
         <p className="mt-2 text-sm font-black">
-          {formatMoney(item.price, item.currency)}
+          {formatCurrency(item.price, currency)}
         </p>
       </div>
 

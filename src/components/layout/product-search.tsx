@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils"
 type ProductSearchProps = {
   className?: string
   onNavigate?: () => void
+  onOpenChange?: (isOpen: boolean) => void
 }
 
 const minimumSearchLength = 3
@@ -32,7 +33,11 @@ const useDebouncedValue = (value: string, delay: number) => {
   return debouncedValue
 }
 
-const ProductSearch = ({ className, onNavigate }: ProductSearchProps) => {
+const ProductSearch = ({
+  className,
+  onNavigate,
+  onOpenChange,
+}: ProductSearchProps) => {
   const [searchTerm, setSearchTerm] = useState("")
   const [isOpen, setIsOpen] = useState(false)
   const debouncedSearchTerm = useDebouncedValue(searchTerm.trim(), 300)
@@ -51,6 +56,10 @@ const ProductSearch = ({ className, onNavigate }: ProductSearchProps) => {
     closeSearch()
     onNavigate?.()
   }
+
+  useEffect(() => {
+    onOpenChange?.(canShowDropdown)
+  }, [canShowDropdown, onOpenChange])
 
   useEffect(() => {
     if (!canShowDropdown) {

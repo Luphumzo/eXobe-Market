@@ -7,25 +7,20 @@ import { ChevronLeft, ShoppingCart } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { useCart } from "@/features/cart/cart-provider"
+import { formatCurrency } from "@/features/currency/currency-format"
+import { useCurrency } from "@/features/currency/currency-provider"
 import {
   getProductById,
   productDetailQueryKey,
-  type Product,
 } from "@/features/products/products"
 
 type ProductDetailViewProps = {
   productId: string
 }
 
-const formatProductPrice = (product: Product) => {
-  return new Intl.NumberFormat("en-ZA", {
-    currency: product.currency,
-    style: "currency",
-  }).format(Number(product.price))
-}
-
 const ProductDetailView = ({ productId }: ProductDetailViewProps) => {
   const { addProduct } = useCart()
+  const { currency } = useCurrency()
   const {
     data: product,
     error,
@@ -94,7 +89,7 @@ const ProductDetailView = ({ productId }: ProductDetailViewProps) => {
               {product.name}
             </h1>
             <p className="mt-5 text-2xl font-black">
-              {formatProductPrice(product)}
+              {formatCurrency(Number(product.price), currency)}
             </p>
             <p className="mt-6 max-w-xl text-base leading-7 text-steel">
               {product.description}
@@ -122,7 +117,7 @@ const ProductDetailView = ({ productId }: ProductDetailViewProps) => {
               </div>
               <div className="flex items-center justify-between gap-4">
                 <span className="font-semibold">Currency</span>
-                <span>{product.currency}</span>
+                <span>{currency}</span>
               </div>
             </div>
           </section>
