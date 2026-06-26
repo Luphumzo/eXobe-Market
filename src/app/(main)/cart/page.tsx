@@ -75,16 +75,22 @@ const CartPage = () => {
             </div>
           </div>
           <div className="mt-6 border-t pt-6">
-            <Button
-              type="button"
-              disabled={!items.length}
-              className="h-12 w-full rounded-full bg-jet text-base font-black text-white hover:bg-primary"
-            >
-              Checkout
-            </Button>
-            <p className="mt-3 text-xs leading-5 text-steel">
-              Checkout setup comes after the cart flow is stable.
-            </p>
+            {items.length ? (
+              <Button
+                asChild
+                className="h-12 w-full rounded-full bg-jet text-base font-black text-white hover:bg-primary"
+              >
+                <Link href="/checkout">Checkout</Link>
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                disabled
+                className="h-12 w-full rounded-full bg-jet text-base font-black text-white hover:bg-primary"
+              >
+                Checkout
+              </Button>
+            )}
           </div>
         </aside>
       </div>

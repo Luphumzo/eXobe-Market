@@ -1,3 +1,4 @@
+import { SiteFooter } from "@/components/layout/site-footer"
 import { SiteHeader } from "@/components/layout/site-header"
 
 const MainLayout = ({
@@ -9,7 +10,8 @@ const MainLayout = ({
     <>
       <SiteHeader />
       {children}
+      <SiteFooter />
     </>
   )
-} 
+}
 export default MainLayout
