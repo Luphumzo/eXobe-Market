@@ -3,7 +3,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useQuery } from "@tanstack/react-query"
-import { ChevronLeft, Heart, ShoppingCart } from "lucide-react"
+import { ChevronLeft, ShoppingCart } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { useCart } from "@/features/cart/cart-provider"
@@ -100,22 +100,14 @@ const ProductDetailView = ({ productId }: ProductDetailViewProps) => {
               {product.description}
             </p>
 
-            <div className="mt-8 grid gap-3 sm:grid-cols-[1fr_auto]">
+            <div className="mt-8">
               <Button
                 type="button"
-                className="h-12 rounded-full bg-jet px-8 text-base font-black text-white hover:bg-primary"
+                className="h-12 w-full rounded-full bg-jet px-8 text-base font-black text-white hover:bg-primary sm:w-fit"
                 onClick={() => addProduct(product)}
               >
                 <ShoppingCart className="size-5" />
                 Add to cart
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                className="h-12 rounded-full px-6 text-base font-black"
-              >
-                <Heart className="size-5" />
-                Wishlist
               </Button>
             </div>
 

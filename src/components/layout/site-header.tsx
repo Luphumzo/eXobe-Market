@@ -3,13 +3,7 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import {
-  Heart,
-  Menu,
-  ShoppingCart,
-  UserCircle,
-  X,
-} from "lucide-react"
+import { Menu, ShoppingCart, UserCircle, X } from "lucide-react"
 import { useState } from "react"
 
 import { menuItems } from "@/app/constants/menu_items"
@@ -97,9 +91,6 @@ const SiteHeader = () => {
         <ProductSearch className="ml-auto hidden w-full max-w-md lg:block" />
 
         <div className="ml-auto flex items-center gap-1 lg:ml-0">
-          <HeaderIcon href="/wishlist" label="Wishlist">
-            <Heart />
-          </HeaderIcon>
           <HeaderIcon badgeCount={cartCount} href="/cart" label="Cart">
             <ShoppingCart />
           </HeaderIcon>
